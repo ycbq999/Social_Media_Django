@@ -1,4 +1,5 @@
 {% extends 'users/base.html' %}
+{% load mathfilters %}
 {% load static %}
 
 {% block body %}
@@ -20,24 +21,40 @@
         </div>
         <div class="px-6 py-4">
             <div class="icon-container flex gap-3">
-                <a id="{{post.id}}" class="btn-like" >
+                <a id="{{ post.id }}" class="btn-like">
+                    {% if logged_user in post.liked_by.all %}
+                    <img class="w-5 h-5" src="{% static 'users/images/redlike.png' %}" alt="">
+                    {% else %}
                     <img class="w-5 h-5" src="{% static 'users/images/whitelike.png' %}" alt="">
+                    {% endif %}
                 </a>
-                
-                
-
-
                 <img class="w-5 h-5" src="{% static 'users/images/comment.png' %}" alt="">
                 <img class="w-5 h-5" src="{% static 'users/images/share.png' %}" alt="">
 
             </div>
         </div>
+
+        <div>
+            {% if post.liked_by.count < 1 %}
+            {% elif post.liked_by.count == 1  %}
+            {{ post.liked_by.first }} Likes this
+            {% elif post.liked_by.count > 1 %}
+            {{ post.liked_by.first }} & {{ post.liked_by.count|sub:1}} Other  likes this
+            {% endif %}
+        </div>
+
         <div class="px-6 py-4">
                 <div class="font-bold text-xl mb-2">{{post.title}}</div>
                 <p class="text-gray-700 text-base">{{post.caption}}</p>
         </div>
        
     </a>
+    <div class="px-5 py-5">
+        {% for comment in post.comments.all %}
+         <b>{{ comment.posted_by  }}</b> :{{ comment.body }}
+        </br>
+        {% endfor %}
+    </div>
     <!--Card ends here-->
     {% endfor %}
 
@@ -52,6 +69,7 @@
                 url:'/posts/like',
                 data:{post_id:post_id, csrfmiddlewaretoken:window.CSRF_TOKEN}               
             })
+            window.location.href = "/posts/feed"
             
         })
     </script>
