@@ -3,6 +3,6 @@ from django import forms
 
 class PostCreateForm(forms.ModelForm):
     class Meta:
-        model = Post
+        model = Post        
         fields = ['title', 'caption', 'image']
         
