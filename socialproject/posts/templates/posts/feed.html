@@ -1,3 +1,4 @@
+
 {% extends 'users/base.html' %}
 {% load mathfilters %}
 {% load static %}
@@ -12,12 +13,13 @@
     <a href="#">
        
         <div class="rounded overflow-hidden w-[470px] h-[470px] bg-white shadow-lg">
-        <div class="user-container flex mx-5 my-5">
-            <img class="h-10 w-10 rounded-full" src="{{post.user.profile.photo.url}}" alt="">
-            <div class="mx-2 my-2 font-bold "><span class="text-indigo-500">{{post.user}}</span></div>
-        </div>
-        <div class="flex justify-center items-center">
-             <img class="h-auto max-w-4xl rounded-lg" src="{{post.image.url}}" alt="">
+            <div class="user-container flex mx-5 my-5">
+                <img class="h-10 w-10 rounded-full" src="{{post.user.profile.photo.url}}" alt="">
+                <div class="mx-2 my-2 font-bold "><span class="text-indigo-500">{{post.user}}</span></div>
+            </div>
+            <div class="flex justify-center items-center">
+                <img class="h-auto max-w-6xl rounded-lg" src="{{post.image.url}}" alt="">
+           </div>
         </div>
         <div class="px-6 py-4">
             <div class="icon-container flex gap-3">
@@ -28,53 +30,68 @@
                     <img class="w-5 h-5" src="{% static 'users/images/whitelike.png' %}" alt="">
                     {% endif %}
                 </a>
+                
                 <img class="w-5 h-5" src="{% static 'users/images/comment.png' %}" alt="">
                 <img class="w-5 h-5" src="{% static 'users/images/share.png' %}" alt="">
 
             </div>
         </div>
-
         <div>
             {% if post.liked_by.count < 1 %}
             {% elif post.liked_by.count == 1  %}
             {{ post.liked_by.first }} Likes this
             {% elif post.liked_by.count > 1 %}
-            {{ post.liked_by.first }} & {{ post.liked_by.count|sub:1}} Other  likes this
+            {{ post.liked_by.first }} & {{ post.liked_by.count|sub:1 }} Other  likes this
             {% endif %}
         </div>
-
         <div class="px-6 py-4">
                 <div class="font-bold text-xl mb-2">{{post.title}}</div>
                 <p class="text-gray-700 text-base">{{post.caption}}</p>
         </div>
+        <div class="px-5 py-5">
+            {% for comment in post.comments.all %}
+             <b>{{ comment.posted_by}}</b> :{{ comment.body }}
+            </br>
+            {% endfor %}
+        </div>
+        <div class="px-5 py-5">
+            <form method="post" class="bg-white   rounded ">
+                {% csrf_token %}
+                <div class="flex">
+
+                <div class="  border rounded  mr-10 text-grey-700">
+                    {{ comment_form.body  }}
+                </div>
+               
+                    <input type="hidden" name="post_id" id="post_id" value="{{ post.id }}">
+                     <input type="hidden" name="posted_by" id="posted_by" value="{{ logged_user }}">
+              
+                
+                    <button class="bg-green-500 text-white px-5 py-2" type="submit">Add</button>
+                
+
+                </div>
+               
+            </form>
+        </div>
        
     </a>
-    <div class="px-5 py-5">
-        {% for comment in post.comments.all %}
-         <b>{{ comment.posted_by  }}</b> :{{ comment.body }}
-        </br>
-        {% endfor %}
-    </div>
     <!--Card ends here-->
     {% endfor %}
 
    </div>
-
    <script type="text/javascript">
+    //console.log('This is working')
     window.CSRF_TOKEN ="{{ csrf_token }}"
-        $(document).on('click','.btn-like',function(){
-            var post_id = this.id            
-            $.ajax({
-                method:"POST",
-                url:'/posts/like',
-                data:{post_id:post_id, csrfmiddlewaretoken:window.CSRF_TOKEN}               
-            })
-            window.location.href = "/posts/feed"
-            
+    $(document).on('click','.btn-like',function(){
+        var post_id = this.id
+        $.ajax({
+            method:"POST",
+            url:'/posts/like',
+            data:{post_id:post_id,csrfmiddlewaretoken:window.CSRF_TOKEN}
         })
-    </script>
-
-
-
-
+        window.location.href='/posts/feed'
+    })
+   </script>
 {% endblock %}
+
